@@ -112,6 +112,18 @@ else:
         }
     }
 
+import dj_database_url
+
+DEBUG = False
+
+ALLOWED_HOSTS = ["*", ".railway.app"]
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+    }
+
 # -------------------------
 # EMAIL
 # -------------------------
