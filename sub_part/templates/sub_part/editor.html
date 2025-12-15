@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Writing Editor{% endblock %}
+
+{% block head_extra %}
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect" />
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+<style>
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
+    font-size: 20px;
+}
+</style>
+
+<!-- Quill Editor -->
+<link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+
+<script>
+tailwind.config = {
+    darkMode: "class",
+    theme: {
+        extend: {
+            colors: {
+                "primary": "#137fec",
+                "background-light": "#f6f7f8",
+                "background-dark": "#101922",
+            },
+            fontFamily: { "display": ["Lexend", "sans-serif"] },
+        },
+    },
+}
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+<body class="font-display">
+<div class="min-h-screen w-full bg-background-light dark:bg-background-dark">
+
+<main class="flex flex-1 justify-center py-5 px-4 sm:px-8 md:px-12">
+<div class="w-full max-w-[960px] flex flex-col">
+
+    <!-- Top Header Bar -->
+    <header class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 md:px-10 py-3">
+        <div class="flex items-center gap-4 text-slate-900 dark:text-white">
+            <div class="size-5 text-primary">
+                <svg fill="none" viewBox="0 0 48 48">
+                    <path clip-rule="evenodd" fill-rule="evenodd"
+                        d="M47.2426 24L24 47.2426 0.757355 24 24 0.757355 47.2426 24ZM12.2426 21H35.7574L24 9.24264 12.2426 21Z" />
+                </svg>
+            </div>
+            <h2 class="text-lg font-bold tracking-[-0.015em]">ThinkWrite</h2>
+        </div>
+
+        <button class="flex items-center justify-center rounded-lg h-10 bg-slate-200 dark:bg-slate-800 px-3">
+            <span class="material-symbols-outlined">account_circle</span>
+        </button>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex flex-col flex-1 py-8 px-4 sm:px-6 md:px-10">
+
+        <!-- Topic Heading -->
+        <div class="flex flex-wrap justify-between items-start gap-6 mb-8">
+
+            <div class="flex flex-col gap-3 min-w-72">
+                <h1 class="text-slate-900 dark:text-white text-4xl font-black leading-tight">
+                    Today's Challenge: {{ topic }}
+                </h1>
+                <p class="text-slate-500 dark:text-slate-400 text-base">
+                    Write your thoughtful response below. No shortcuts.
+                </p>
+            </div>
+
+            <!-- Dummy Timer -->
+            <div class="flex items-center gap-2 rounded-lg bg-slate-100 dark:bg-slate-800 p-3 shadow-sm">
+                <span class="material-symbols-outlined text-slate-600">timer</span>
+                <div class="flex gap-1 items-baseline">
+                    <p class="text-lg font-bold text-slate-900 dark:text-white">30</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">m</p>
+                    <p class="text-lg font-bold text-slate-900 dark:text-white">00</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">s</p>
+                </div>
+                <p class="text-sm text-slate-600 dark:text-slate-400 ml-2">Remaining</p>
+            </div>
+
+        </div>
+
+        <!-- FORM -->
+        <form id="writingForm" method="POST" action="{% url 'submit_writing' %}">
+            {% csrf_token %}
+            <input type="hidden" name="topic" value="{{ topic }}">
+            <input type="hidden" id="content" name="content">
+
+            <!-- QUILL EDITOR -->
+            <div class="flex flex-col flex-1">
+                <div id="editor"
+                     class="flex flex-col min-w-40 flex-1 bg-white dark:bg-background-dark/50 rounded-lg border border-slate-300 dark:border-slate-700 p-6 min-h-[400px]">
+                </div>
+
+                <p class="text-slate-500 dark:text-slate-400 text-sm pt-3">
+                    Word Count: <span id="wordCount">0</span>
+                </p>
+            </div>
+
+            <!-- ACTION BAR -->
+            <div class="mt-8 flex justify-end gap-4 border-t border-slate-200 dark:border-slate-800 pt-6">
+
+                <button type="button"
+                    class="rounded-lg h-10 px-4 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    Save Draft
+                </button>
+
+                <button type="submit"
+                    class="flex items-center gap-2 h-10 px-5 bg-primary text-white rounded-lg hover:opacity-90 shadow-sm">
+                    <span>Submit for Feedback</span>
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+
+            </div>
+        </form>
+
+    </div>
+
+</div>
+</main>
+
+
+<!-- QUILL SCRIPT -->
+<script>
+var quill = new Quill('#editor', {
+    theme: 'snow',
+    placeholder: 'Begin writing your response here...'
+});
+
+// Disable Paste
+quill.root.addEventListener('paste', function(e){
+    e.preventDefault();
+});
+
+// Word Count
+function countWords(text){
+    return (text.trim().match(/\b\w+\b/g) || []).length;
+}
+
+quill.on('text-change', function(){
+    let text = quill.getText();
+    document.getElementById("wordCount").textContent = countWords(text);
+});
+
+// On form submit → move text to hidden input
+document.getElementById("writingForm").addEventListener("submit", function(){
+    let plain = quill.getText(); 
+    document.getElementById("content").value = plain;
+});
+</script>
+
+</div>
+</body>
+
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Pricing{% endblock %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto py-16 px-4">
+
+    <h1 class="text-3xl font-bold mb-10 text-center">Choose Your Plan</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <!-- Free Plan -->
+        <div class="border rounded-lg p-6 bg-white shadow-sm">
+            <h2 class="text-xl font-semibold mb-2">Free Plan</h2>
+            <p class="text-gray-600 mb-4">Good for trying the platform.</p>
+
+            <p class="text-3xl font-bold mb-4">$0/month</p>
+
+            <ul class="text-sm text-gray-700 space-y-2 mb-6">
+                <li>✔ 3 submissions per month</li>
+                <li>✔ Basic AI feedback</li>
+                <li>✔ Daily writing prompts</li>
+            </ul>
+
+            <a href="/signup/"
+               class="block text-center bg-gray-200 hover:bg-gray-300 py-2 rounded font-medium">
+               Start Free
+            </a>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="border-2 border-blue-600 rounded-lg p-6 bg-white shadow-md">
+            <h2 class="text-xl font-semibold mb-2">Pro Plan</h2>
+            <p class="text-gray-600 mb-4">For serious writers who want deeper feedback.</p>
+
+            <p class="text-3xl font-bold mb-4">$9/month</p>
+
+            <ul class="text-sm text-gray-700 space-y-2 mb-6">
+                <li>✔ Unlimited submissions</li>
+                <li>✔ Detailed AI analysis</li>
+                <li>✔ Priority feedback</li>
+                <li>✔ Advanced challenges</li>
+            </ul>
+
+            <a href="{% url 'upgrade' %}"
+               class="block text-center bg-blue-600 text-white hover:bg-blue-700 py-2 rounded font-medium">
+               Upgrade to Pro
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

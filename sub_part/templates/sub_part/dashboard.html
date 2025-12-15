@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Dashboard</title>
+    <link rel="stylesheet" href="{% static 'sub_part/styles.css' %}">
+</head>
+
+<body class="bg-white text-black">
+
+    <div class="container">
+        <h1 class="heading">Welcome, {{ request.user.username }}</h1>
+
+        <p class="subtext">Pick a topic and start writing today.</p>
+
+        <a href="{% url 'topics' %}" class="btn-primary">Pick a topic</a>
+
+        <hr>
+
+        <h2>Your Recent Submissions</h2>
+
+        {% if subs %}
+            <ul class="submission-list">
+                {% for s in subs %}
+                    <li>
+                        <strong>{{ s.topic }}</strong>
+                        <span class="small">{{ s.created_at|date:"M d, Y" }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No submissions yet. Start writing!</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>

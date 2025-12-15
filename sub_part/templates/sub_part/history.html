@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% block title %}Submission History{% endblock %}
+
+{% block head_extra %}
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#2F4F4F",
+        "background-light": "#F5F5F0",
+        "background-dark": "#101922",
+        "card-light": "#EAEAE0",
+        "card-dark": "#19222c",
+        "text-light": "#2D3748",
+        "text-dark": "#EAEAE0",
+        "subtle-light": "#677489",
+        "subtle-dark": "#9dabb9",
+      },
+      fontFamily: { "display": ["Lexend", "sans-serif"] }
+    }
+  }
+}
+</script>
+
+<style>
+.material-symbols-outlined { font-variation-settings:'FILL'0,'wght'400,'GRAD'0,'opsz'24 }
+.material-symbols-outlined.fill { font-variation-settings:'FILL'1 }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+
+<div class="flex h-screen w-full">
+
+<!-- SIDEBAR -->
+<aside class="w-64 flex flex-col border-r border-card-light dark:border-card-dark bg-background-light dark:bg-background-dark">
+  <div class="flex flex-col justify-between h-full p-4">
+
+    <!-- USER INFO -->
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-3 px-2">
+        <div class="size-10 rounded-full bg-gray-400"></div>
+        <div class="flex flex-col">
+          <h1 class="font-medium">{{ request.user.username }}</h1>
+          <p class="text-sm text-subtle-light dark:text-subtle-dark">{{ request.user.email }}</p>
+        </div>
+      </div>
+
+      <!-- NAV -->
+      <nav class="flex flex-col gap-2 mt-4">
+        <a href="{% url 'dashboard' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-card-light dark:hover:bg-card-dark">
+          <span class="material-symbols-outlined">home</span><p class="text-sm">Home</p>
+        </a>
+        <a href="{% url 'topics' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-card-light dark:hover:bg-card-dark">
+          <span class="material-symbols-outlined">bolt</span><p class="text-sm">Challenges</p>
+        </a>
+        <a href="{% url 'history' %}" class="flex items-center gap-3 px-3 py-2 bg-primary/20 text-primary rounded-lg">
+          <span class="material-symbols-outlined fill">chat_bubble</span><p class="text-sm">Feedback</p>
+        </a>
+        <a href="/profile/" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-card-light dark:hover:bg-card-dark">
+          <span class="material-symbols-outlined">person</span><p class="text-sm">Profile</p>
+        </a>
+      </nav>
+    </div>
+
+    <!-- FOOTER NAV -->
+    <div class="flex flex-col gap-2">
+      <a href="/settings/" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-card-light dark:hover:bg-card-dark">
+        <span class="material-symbols-outlined">settings</span><p class="text-sm">Settings</p>
+      </a>
+      <a href="/accounts/logout/" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-card-light dark:hover:bg-card-dark">
+        <span class="material-symbols-outlined">logout</span><p class="text-sm">Logout</p>
+      </a>
+    </div>
+
+  </div>
+</aside>
+
+
+<!-- MAIN AREA -->
+<main class="flex flex-1 overflow-hidden">
+
+  <!-- LEFT LIST OF SUBMISSIONS -->
+  <div class="w-full max-w-sm flex flex-col border-r border-card-light dark:border-card-dark">
+
+    <div class="p-4 border-b border-card-light dark:border-card-dark">
+      <h2 class="text-xl font-semibold">Submissions</h2>
+
+      <!-- SEARCH BAR -->
+      <div class="py-3">
+        <div class="flex items-center bg-card-light dark:bg-card-dark rounded-lg px-3 h-11">
+          <span class="material-symbols-outlined text-subtle-light">search</span>
+          <input class="w-full bg-transparent px-3 text-sm outline-none" placeholder="Search submissions...">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SUBMISSION LIST -->
+    <div class="flex-1 overflow-y-auto">
+
+      {% for s in submissions %}
+      <a href="{% url 'history_detail' s.id %}">
+      <div class="flex gap-4 p-4 cursor-pointer 
+           {% if selected.id == s.id %}
+             border-l-4 border-primary bg-card-light dark:bg-card-dark
+           {% else %}
+             hover:bg-card-light/50 dark:hover:bg-card-dark/50
+           {% endif %}">
+        
+        <span class="size-12 flex items-center justify-center rounded-lg bg-card-light dark:bg-card-dark">
+          <span class="material-symbols-outlined">description</span>
+        </span>
+
+        <div class="flex flex-col">
+          <p class="text-base font-medium">{{ s.title }}</p>
+          <p class="text-sm text-subtle-light dark:text-subtle-dark">
+            Clarity: {{ s.feedback.clarity_score }}/100, Originality: {{ s.feedback.originality_score }}/100
+          </p>
+          <p class="text-sm text-subtle-light dark:text-subtle-dark">
+            {{ s.created_at|date:"M d, Y" }}
+          </p>
+        </div>
+
+      </div>
+      </a>
+      {% endfor %}
+
+    </div>
+  </div>
+
+
+  <!-- RIGHT PANEL: FEEDBACK -->
+  <div class="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
+
+    <!-- HEADER -->
+    <div class="p-6 border-b border-card-light dark:border-card-dark flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold">{{ selected.title }}</h1>
+        <p class="text-subtle-light">{{ selected.created_at|date:"F d, Y" }}</p>
+      </div>
+
+      <a href="{% url 'export_submission' selected.id %}"
+         class="flex items-center gap-x-2 rounded-lg bg-card-light dark:bg-card-dark px-4 h-10 hover:bg-primary/20">
+        <span class="material-symbols-outlined">print</span>
+        <p class="text-sm font-medium">Export</p>
+      </a>
+    </div>
+
+    <div class="p-6">
+
+      <!-- TABS -->
+      <nav class="border-b border-card-light dark:border-card-dark flex space-x-6">
+        <a href="?tab=original"
+           class="px-1 pb-3 text-sm 
+              {% if tab == 'original' %}border-primary text-primary border-b-2{% else %}text-subtle-light hover:text-primary hover:border-primary/30 border-transparent border-b-2{% endif %}">
+          Original Submission
+        </a>
+
+        <a href="?tab=feedback"
+           class="px-1 pb-3 text-sm 
+              {% if tab == 'feedback' %}border-primary text-primary border-b-2{% else %}text-subtle-light hover:text-primary hover:border-primary/30 border-transparent border-b-2{% endif %}">
+          Feedback
+        </a>
+
+        <a href="?tab=insights"
+           class="px-1 pb-3 text-sm 
+              {% if tab == 'insights' %}border-primary text-primary border-b-2{% else %}text-subtle-light hover:text-primary hover:border-primary/30 border-transparent border-b-2{% endif %}">
+          Progress Insights
+        </a>
+      </nav>
+
+      <!-- TAB CONTENT -->
+      <div class="mt-6 space-y-8">
+
+        {% if tab == "original" %}
+        <div class="p-5 rounded-xl bg-card-light dark:bg-card-dark">
+          <p>{{ selected.content }}</p>
+        </div>
+
+        {% elif tab == "feedback" %}
+        <!-- FEEDBACK SUMMARY -->
+        <div>
+          <h3 class="text-lg font-semibold mb-3">Overall Summary</h3>
+          <div class="p-5 rounded-xl bg-card-light dark:bg-card-dark">
+            <p>{{ feedback.summary }}</p>
+          </div>
+        </div>
+
+        <!-- FEEDBACK BREAKDOWN -->
+        <div>
+          <h3 class="text-lg font-semibold mb-3">Feedback Breakdown</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {% for key, label in {
+              "clarity_score": "Clarity",
+              "depth_score": "Depth",
+              "structure_score": "Structure",
+              "originality_score": "Originality",
+              "overall_score": "Overall"
+            }.items %}
+            <div class="rounded-xl border border-card-light dark:border-card-dark p-5">
+              <div class="flex justify-between mb-2">
+                <h4 class="font-semibold">{{ label }}</h4>
+                <span class="font-bold text-lg text-primary">{{ feedback[key] }}/100</span>
+              </div>
+              <p class="text-sm text-subtle-light dark:text-subtle-dark">
+                {{ feedback[label|lower] }}
+              </p>
+            </div>
+            {% endfor %}
+
+          </div>
+        </div>
+
+        {% elif tab == "insights" %}
+        <div class="p-5 rounded-xl bg-card-light dark:bg-card-dark">
+          <p>Insights chart or growth trends will appear here.</p>
+        </div>
+        {% endif %}
+
+      </div>
+
+    </div>
+
+  </div>
+
+</main>
+
+</div>
+
+</body>
+{% endblock %}

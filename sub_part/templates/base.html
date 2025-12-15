@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Writing Challenge{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}{% endblock %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="/static/sub_part/styles.css" rel="stylesheet">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <header>...nav...</header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer>© {{ now|date:"Y" }} — Writing Challenge</footer>
+  {% block body_extra %}{% endblock %}
+</body>
+</html>
